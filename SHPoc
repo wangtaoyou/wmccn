@@ -1,0 +1,19 @@
+----投产后采气量----------------------
+select sum(ryeargas)
+  from (select  ryeargas
+          from xhq_t292b t,
+               (select m.snodeid,
+                       add_months(trunc(m.dtcurrentdate, 'yyyy'), 12) - 1 dtcurrentdate
+                  from xhq_t292b m
+                 group by m.snodeid,
+                          add_months(trunc(m.dtcurrentdate, 'yyyy'), 12) - 1) m
+        
+         where t.dtcurrentdate = m.dtcurrentdate
+           and t.snodeid = m.snodeid
+           and t.snodeid = '3000011300'
+        
+        union
+        select ryeargas
+          from xhq_t292b t
+         where t.snodeid = '3000011300'
+           and to_char(t.dtcurrentdate, 'yyyymmdd') = '20160718')
