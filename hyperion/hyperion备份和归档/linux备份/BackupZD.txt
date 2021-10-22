@@ -1,0 +1,141 @@
+shell echo "/*login*/";
+spool on to '/app/backup/logs/ZD_backup_logs.out';
+login admin zhengda@1234;
+
+shell echo "/*Start Backup*/";
+
+alter application APP01 disable connects;
+alter application APP02 disable connects;
+alter application APP03 disable connects;
+alter application APP04 disable connects;
+alter application APP05 disable connects;
+alter application RETAIL02 disable connects;
+alter application APP52 disable connects;
+
+shell echo "/*begin archive*/";
+
+alter database APP01.DB01 begin archive to file "/app/backup/logs/APP01_DB01.out";
+alter database APP01.DB02 begin archive to file "/app/backup/logs/APP01_DB02.out";
+alter database APP01.DB03 begin archive to file "/app/backup/logs/APP01_DB03.out";
+alter database APP02.DB01 begin archive to file "/app/backup/logs/APP02_DB01.out";
+alter database APP02.DB02 begin archive to file "/app/backup/logs/APP02_DB02.out";
+alter database APP02.DB03 begin archive to file "/app/backup/logs/APP02_DB03.out";
+alter database APP03.DB01 begin archive to file "/app/backup/logs/APP03_DB01.out";
+alter database APP03.DB02 begin archive to file "/app/backup/logs/APP03_DB02.out";
+alter database APP03.DB03 begin archive to file "/app/backup/logs/APP03_DB03.out";
+alter database APP04.DB01 begin archive to file "/app/backup/logs/APP04_DB01.out";
+alter database APP04.DB02 begin archive to file "/app/backup/logs/APP04_DB02.out";
+alter database APP04.DB03 begin archive to file "/app/backup/logs/APP04_DB03.out";
+alter database APP05.DB01 begin archive to file "/app/backup/logs/APP05_DB01.out";
+alter database APP05.DB02 begin archive to file "/app/backup/logs/APP05_DB02.out";
+alter database APP05.DB03 begin archive to file "/app/backup/logs/APP05_DB03.out";
+alter database RETAIL02.DB01 begin archive to file "/app/backup/logs/RETAIL02_DB01.out";
+alter database RETAIL02.DB02 begin archive to file "/app/backup/logs/RETAIL02_DB02.out";
+alter database RETAIL02.DB03 begin archive to file "/app/backup/logs/RETAIL02_DB03.out";
+alter database APP52.DB01 begin archive to file "/app/backup/logs/APP52_DB01.out";
+alter database APP52.DB02 begin archive to file "/app/backup/logs/APP52_DB02.out";
+alter database APP52.DB03 begin archive to file "/app/backup/logs/APP52_DB03.out";
+
+alter system unload application APP01;
+alter system unload application APP02;
+alter system unload application APP03;
+alter system unload application APP04;
+alter system unload application APP05;
+alter system unload application RETAIL02;
+alter system unload application APP52;
+
+shell cp '/app/Oracle/Middleware/user_projects/epmsystem3/EssbaseServer/essbaseserver1/bin/essbase.sec' '/app/backup/Application/essbase.sec';
+shell cp -R '/app/Oracle/Middleware/user_projects/epmsystem3/EssbaseServer/essbaseserver1/app/APP01' '/app/backup/Application/APP01';
+shell cp -R '/app/Oracle/Middleware/user_projects/epmsystem3/EssbaseServer/essbaseserver1/app/APP03' '/app/backup/Application/APP03';
+shell cp -R '/app/Oracle/Middleware/user_projects/epmsystem3/EssbaseServer/essbaseserver1/app/APP02' '/app/backup/Application/APP02';
+shell cp -R '/app/Oracle/Middleware/user_projects/epmsystem3/EssbaseServer/essbaseserver1/app/APP04' '/app/backup/Application/APP04';
+shell cp -R '/app/Oracle/Middleware/user_projects/epmsystem3/EssbaseServer/essbaseserver1/app/APP05' '/app/backup/Application/APP05';
+shell cp -R '/app/Oracle/Middleware/user_projects/epmsystem3/EssbaseServer/essbaseserver1/app/RETAIL02' '/app/backup/Application/RETAIL02';
+shell cp -R '/app/Oracle/Middleware/user_projects/epmsystem3/EssbaseServer/essbaseserver1/app/APP52' '/app/backup/Application/APP52';
+
+alter system load application APP01;
+alter system load application APP03;
+alter system load application APP02;
+alter system load application APP04;
+alter system load application APP05;
+alter system load application RETAIL02;
+alter system load application APP52;
+
+shell echo "/*end archive*/";
+alter database APP01.DB01 end archive;
+alter database APP01.DB02 end archive;
+alter database APP01.DB03 end archive;
+alter database APP03.DB01 end archive;
+alter database APP03.DB02 end archive;
+alter database APP03.DB03 end archive;
+alter database APP02.DB01 end archive;
+alter database APP02.DB02 end archive;
+alter database APP02.DB03 end archive;
+alter database APP04.DB01 end archive;
+alter database APP04.DB02 end archive;
+alter database APP04.DB03 end archive;
+alter database APP05.DB01 end archive;
+alter database APP05.DB02 end archive;
+alter database APP05.DB03 end archive;
+alter database RETAIL02.DB01 end archive;
+alter database RETAIL02.DB02 end archive;
+alter database RETAIL02.DB03 end archive;
+alter database APP52.DB01 end archive;
+alter database APP52.DB02 end archive;
+alter database APP52.DB03 end archive;
+
+alter application APP01 enable connects;
+alter application APP03 enable connects;
+alter application APP02 enable connects;
+alter application APP04 enable connects;
+alter application APP05 enable connects;
+alter application RETAIL02 enable connects;
+alter application APP52 enable connects;
+
+export database APP01.DB01 all data to data_file '/app/backup/Application/APP01_DB01.txt';
+export database APP01.DB02 all data to data_file '/app/backup/Application/APP01_DB02.txt';
+export database APP01.DB03 all data to data_file '/app/backup/Application/APP01_DB03.txt';
+export database APP03.DB01 all data to data_file '/app/backup/Application/APP03_DB01.txt';
+export database APP03.DB02 all data to data_file '/app/backup/Application/APP03_DB02.txt';
+export database APP03.DB03 all data to data_file '/app/backup/Application/APP03_DB03.txt';
+export database APP02.DB01 all data to data_file '/app/backup/Application/APP02_DB01.txt';
+export database APP02.DB02 all data to data_file '/app/backup/Application/APP02_DB02.txt';
+export database APP02.DB03 all data to data_file '/app/backup/Application/APP02_DB03.txt';
+export database APP04.DB01 all data to data_file '/app/backup/Application/APP04_DB01.txt';
+export database APP04.DB02 all data to data_file '/app/backup/Application/APP04_DB02.txt';
+export database APP04.DB03 all data to data_file '/app/backup/Application/APP04_DB03.txt';
+export database APP05.DB01 all data to data_file '/app/backup/Application/APP05_DB01.txt';
+export database APP05.DB02 all data to data_file '/app/backup/Application/APP05_DB02.txt';
+export database APP05.DB03 all data to data_file '/app/backup/Application/APP05_DB03.txt';
+export database RETAIL02.DB01 all data to data_file '/app/backup/Application/RETAIL02_DB01.txt';
+export database RETAIL02.DB02 all data to data_file '/app/backup/Application/RETAIL02_DB02.txt';
+export database RETAIL02.DB03 all data to data_file '/app/backup/Application/RETAIL02_DB03.txt';
+export database APP52.DB01 all data to data_file '/app/backup/Application/APP52_DB01.txt';
+export database APP52.DB02 all data to data_file '/app/backup/Application/APP52_DB02.txt';
+export database APP52.DB03 all data to data_file '/app/backup/Application/APP52_DB03.txt';
+
+alter database APP01.DB01 force restructure;
+alter database APP01.DB02 force restructure;
+alter database APP01.DB03 force restructure;
+alter database APP03.DB01 force restructure;
+alter database APP03.DB02 force restructure;
+alter database APP03.DB03 force restructure;
+alter database APP02.DB01 force restructure;
+alter database APP02.DB02 force restructure;
+alter database APP02.DB03 force restructure;
+alter database APP04.DB01 force restructure;
+alter database APP04.DB02 force restructure;
+alter database APP04.DB03 force restructure;
+alter database APP05.DB01 force restructure;
+alter database APP05.DB02 force restructure;
+alter database APP05.DB03 force restructure;
+alter database RETAIL02.DB01 force restructure;
+alter database RETAIL02.DB02 force restructure;
+alter database RETAIL02.DB03 force restructure;
+alter database APP52.DB01 force restructure;
+alter database APP52.DB02 force restructure;
+alter database APP52.DB03 force restructure;
+
+spool off;
+exit;
+

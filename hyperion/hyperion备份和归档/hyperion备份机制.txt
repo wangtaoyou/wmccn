@@ -1,0 +1,5 @@
+1、EPM备份分两部分（planning、essbase）
+2、planning (windows服务器，Oracle数据库，导出当前需要备份的schema EPM_PLN_*) 到处dmp文件
+3、essbase 分为essbase应用和数据两部分
+     essbase应用部分直接全量备份app全路径；
+     essbase数据部分通过exp 导出txt文件进行备份

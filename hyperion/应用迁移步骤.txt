@@ -1,0 +1,25 @@
+升级应用：
+1、Default Application Group 导出规则选项；
+		-Configuration 配置，选择
+		-essbase Date 数据 不选
+		-Global Artifacts 计算规则，菜单 选择
+		-Plan type 数据库 选择 
+		-Relational Data 选择
+		-security 用户权限通常不导出 不选
+    Foundation 导出计算规则和用户权限 "待确认"
+
+2、新建数据库，有脚本；
+3、admin登录 ，规划和预算编制
+   3.1 先管理数据源
+   3.2 管理应用程序 选择数据源（Shared Services 项目 选择default Application Group）
+       日历：前缀 Per，第一个财政年2019，财政年度数目5
+	   货币：cny，不支持多货币
+	   规划类型：DB01,DB02,DB03
+
+4、修改权限； 
+    4.1新建组 Admin_APP52增加人员；
+    4.2右击Admin_APP52，点击Provision,点击default Application Group->APP52,Reporting and Analysis->viewer 到右边
+
+5、修改period维度，并执行创建数据库。
+6、导入用户、导入应用；导入规则，重新发布规则；
+7、essbase数据库需要设置存储容量,改完需要重启db01；
