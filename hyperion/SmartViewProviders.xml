@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<res_GetProvisionedDataSources>
+
+<Product id="DEV Essbase" name="APS-11.1.2" displayVersion="11.1">
+<Server name="DEV Essbase" context="http://cpepmq.cpgroup.cn:19009/aps/SmartView"></Server>
+</Product>
+ 
+<Product id="DEV Planning" name="HP-11.1.2" displayVersion="11.	">
+<Server name="DEV Planning" context="http://cpepmq.cpgroup.cn:19009/HyperionPlanning/SmartView"></Server>
+</Product>
+
+<Product id="DEV RAFramework" name="RAFramework-11.1.2" displayVersion="11.1">
+<Server name="DEV RAFramework" context="http://cpepmq.cpgroup.cn:19009/raframework/browse/listXML"></Server>
+</Product>
+
+
+<Product id="PRD Essbase" name="APS-11.1.2" displayVersion="11.1">
+<Server name="PRD Essbase" context="http://cpepm.cpgroup.cn:19000/aps/SmartView"></Server>
+</Product>
+ 
+ 
+<Product id="PRD Planning" name="HP-11.1.2" displayVersion="11.1">
+<Server name="PRD Planning" context="http://cpepm.cpgroup.cn:19000/HyperionPlanning/SmartView"></Server>
+</Product>
+
+<Product id="PRD RAFramework" name="RAFramework-11.1.2" displayVersion="11.1">
+<Server name="PRD RAFramework" context="http://cpepm.cpgroup.cn:19000/raframework/browse/listXML"></Server>
+</Product>
+
+</res_GetProvisionedDataSources>

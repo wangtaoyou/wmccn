@@ -1,0 +1,5 @@
+https://docs.oracle.com/en/applications/enterprise-performance-management/index.html
+
+1、Essbase -> Oracle Essbase for EPM - Oracle Essbase Release 11.1.2.2.100 
+2、Foundation Services
+3、financial PM applications
