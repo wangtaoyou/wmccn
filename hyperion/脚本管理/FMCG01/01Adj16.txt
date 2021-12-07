@@ -67,6 +67,21 @@ FIX (&CurYr, "Actual","Working","no_CDD01","no_CDD02","no_CDD03","no_CDD04","no_
 			FIX(@CHILD("YearTotal"),"Per_Unit")/*(18)*/
 				"Orig"="Amount"->"Before_Allc"->@PARENT("Period")/"产量"->"Amount"->"Before_Allc"->@PARENT("Period");
 			ENDFIX	
+			
+			FIX(@RELATIVE("YearTotal",0))/*(17)*/
+				FIX("Per_Unit")/*(18)*/
+				"Orig"="Amount"->"Before_Allc"->@PARENT("Period")/"产量"->"Amount"->"Before_Allc"->@PARENT("Period");
+				ENDFIX
+				/*日总额=单位生产成本*产量（如有）*/	
+				FIX("Orig")/*(18)*/
+					"Amount"
+					(
+						IF("产量"->"Amount"<> #MISSING)
+							"Amount" = Per_Unit * "产量"->"no_Channel"->"no_Customer"->"no_Region";
+						ENDIF
+					)
+				ENDFIX
+			ENDFIX
 		ENDFIX
 	ENDFIX
 	
@@ -128,44 +143,34 @@ FIX (&CurYr, "Actual","Working","no_CDD01","no_CDD02","no_CDD03","no_CDD04","no_
 			ENDFIX
 		ENDFIX
 
-
-		/*边际贡献="销售收入"->"Amount"/"销量"->"Amount" -"原料成本" -"辅料成本" -"包装成本"-"变动制造费用"-"销售费用" 只计有销售收入的*/
+	/*边际贡献="销售收入"->"Amount"/"销量"->"Amount" -"原料成本" -"辅料成本" -"包装成本"-"变动制造费用"-"销售费用" 只计有销售收入的
+		1、日：先计算单位边际贡献，再计算总额=单位边际贡献*销量
+		2、月：先计算总额=日的聚合，再计算单位边际贡献=月总额/销量*/
 		FIX(@RELATIVE("YearTotal",0),"Orig")/*(17)*/
-			FIX("Per_Unit")/*(18)*/
-				"边际贡献"
-				(
-					IF("销售收入"->"Amount"<> #MISSING)
-						"边际贡献" = "销售收入"->"Amount"/"销量"->"Amount" -"原料成本" -"辅料成本" -"包装成本"-"变动制造费用"-"销售费用";
-					ENDIF
-				)
-				
-			ENDFIX
+		  
+			FIX("边际贡献")/*(18)*/
+				"Per_Unit"=1;
+			ENDFIX	
+	
+		  
 			FIX("Amount")/*(18)*/
 				"边际贡献"
 				(
 					IF("销售收入"->"Amount"<> #MISSING)
-						"边际贡献" = "边际贡献"->Per_Unit * "销量";
+						"边际贡献" = "边际贡献"->"Per_Unit"*"销量"->"no_Channel"->"no_Customer"->"no_Region";
 					ENDIF
 				)
 			ENDFIX	
 		ENDFIX
 		
-		FIX(@CHILD("YearTotal"),"Orig")/*(17)*/
-			FIX("Per_Unit")/*(18)*/
-				"边际贡献"
-				(
-					IF("销售收入"->"Amount"<> #MISSING)
-						"边际贡献" = "销售收入"->"Amount"/"销量"->"Amount" -"原料成本" -"辅料成本"-"包装成本" -"变动制造费用"-"销售费用";
-					ENDIF
-				)
+		FIX("边际贡献","Orig")/*(17)*/
+		/*相关日数据聚合到月总量*/		
+			FIX("Amount")/*18*/
+				@IDESC("YearTotal");
 			ENDFIX
-			FIX("Amount")/*(18)*/
-				"边际贡献"
-				(
-					IF("销售收入"->"Amount"<> #MISSING)
-						"边际贡献" = "边际贡献"->Per_Unit * "销量";
-					ENDIF
-				)
+		/*月单位边际贡献=月总额/月销量*/	
+			FIX(@CHILD(YearTotal))/*(18)*/
+				"Per_Unit"="Amount"/"销量"->"Amount";
 			ENDFIX
 		ENDFIX
 		
