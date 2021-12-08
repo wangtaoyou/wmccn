@@ -1,0 +1,31 @@
+//ESS_LOCALE SimplifiedChinese_China.MS936@Binary
+
+SET UPDATECALC OFF;
+SET AGGMISSG ON;
+SET CREATENONMISSINGBLK OFF; 
+
+/*
+维度总量 19个
+其中CDD01-CDD06为备用维度尚未启用
+密集维：Account/Value/View
+稀疏维：Period/Entity/Productline/Product/Channel/Customer/Region/Version/Scenario/Years
+*/
+FIX (&CurYr, "Actual","Working","no_CDD01","no_CDD02","no_CDD03","no_CDD04","no_CDD05","no_CDD06") /*(9)*/
+
+		/*跌价准备没有月收入归类到最后一天*/
+	FIX(@RELATIVE("Product",0),@RELATIVE("ProductLine",0),"no_Customer","no_Region","no_Channel",@RELATIVE("Entity",0))/*(15)*/
+		FIX("管理费用-跌价准备")/*(16)*/
+			FIX(&EndDay)/*(17)*/	
+				FIX("Amount")/*(18)*/	
+					"Orig" (
+						IF(	"销售收入"->"Before_Allc"->"All_Channel"->"All_Product"->"All_Region"->"All_Customer"->@PARENT("Period") == #MISSING OR "销售收入"->"Before_Allc"->"All_Channel"->"All_Product"->"All_Region"->"All_Customer"->@PARENT("Period") == 0)
+							
+							"Orig"= "管理费用-跌价准备"->"Before_Allc"->"no_Channel"->"no_Customer"->"no_Region"->@PARENT("Period");
+						ENDIF
+					)
+				ENDFIX
+			ENDFIX
+		ENDFIX
+	ENDFIX
+
+ENDFIX

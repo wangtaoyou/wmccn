@@ -83,7 +83,7 @@ FIX (&CurYr, "Actual","Working","no_CDD01","no_CDD02","no_CDD03","no_CDD04","no_
 					"Amount"
 					(
 						IF("产量"->"Amount"<> #MISSING)
-							"Amount" = Per_Unit * "产量"->"no_Channel"->"no_Customer"->"no_Region"->"Amount";
+							"Amount" = "Per_Unit" * "产量"->"no_Channel"->"no_Customer"->"no_Region"->"Amount";
 						ENDIF
 					)
 				ENDFIX				
@@ -143,7 +143,7 @@ FIX (&CurYr, "Actual","Working","no_CDD01","no_CDD02","no_CDD03","no_CDD04","no_
 			ENDFIX
 		ENDFIX
 		
-		FIX(@CHILD("YearTotal"))/*(17)*/
+		FIX(@CHILD("YearTotal"),"Orig")/*(17)*/
 			FIX("Amount")/*(18)*/
 				"产销成本差异"="生产成本" - "销售成本合计";
 			ENDFIX
@@ -175,7 +175,7 @@ FIX (&CurYr, "Actual","Working","no_CDD01","no_CDD02","no_CDD03","no_CDD04","no_
 			ENDFIX
 			
 		/*月单位边际贡献=月总额/月销量*/	
-			FIX(@CHILD(YearTotal))/*(18)*/
+			FIX(@CHILD("YearTotal"))/*(18)*/
 				"Per_Unit"="Amount"/"销量"->"Amount";
 			ENDFIX	
 			
@@ -188,12 +188,11 @@ FIX (&CurYr, "Actual","Working","no_CDD01","no_CDD02","no_CDD03","no_CDD04","no_
 					"Orig" ="销售收入"->"Before_Allc"/"销售收入"->"Before_Allc"->"All_Channel"->"All_Product"->"All_Region"->"All_Customer"->@PARENT("Period")*"Before_Allc"->"no_Channel"->"no_Customer"->"no_Region"->@PARENT("Period");
 				ENDFIX
 			ENDFIX
-		ENDFIX
 			
-		FIX("Amount","Orig")/*18*/
+			FIX("Amount","Orig")/*18*/
 				@IDESC("YearTotal");
+			ENDFIX
 		ENDFIX
-		
 	ENDFIX
 		
 
@@ -207,14 +206,12 @@ FIX (&CurYr, "Actual","Working","no_CDD01","no_CDD02","no_CDD03","no_CDD04","no_
 			AGG("Region");
 			AGG("ProductLine");
 		ENDFIX
-
-		FIX(@IDESC("Yeartotal"),"肉类成本","米面成本","蔬菜成本","其他原料成本","辅料成本","包装成本","原料成本","制造费用","直接人工","直接水费","直接电费","直接维修","直接物料消耗","直接蒸汽","直接天然气","直接折旧","直接其他","间接人工","间接水费","间接电费","间接维修","间接物料消耗","间接蒸汽","间接天然气","间接折旧","间接其他","管理费用-跌价准备")/*(11)*/
-			FIX("Per_Unit",@IDESC("Total_Product"),@IDESC("Total_ProductLine"))/*(18)*/
+	ENDFIX
+	FIX(@IDESC("Yeartotal"),"肉类成本","米面成本","蔬菜成本","其他原料成本","辅料成本","包装成本","原料成本","制造费用","直接人工","直接水费","直接电费","直接维修","直接物料消耗","直接蒸汽","直接天然气","直接折旧","直接其他","间接人工","间接水费","间接电费","间接维修","间接物料消耗","间接蒸汽","间接天然气","间接折旧","间接其他")/*(11)*/
+		FIX("Per_Unit",@IDESC("Total_Product"),@IDESC("Total_ProductLine"),@RELATIVE("Entity",0),@IDESC("Total_Channel"),@IDESC("Total_Region"),@IDESC("Total_Customer"))/*(18)*/
 				"Orig"="Amount"/"产量"->"no_Channel"->"no_Customer"->"no_Region"->"Amount";
-			ENDFIX
-		ENDFIX	
-
-	ENDFIX	
+		ENDFIX
+	ENDFIX		
 
 ENDFIX
 
