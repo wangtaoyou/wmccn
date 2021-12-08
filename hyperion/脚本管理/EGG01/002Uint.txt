@@ -1,0 +1,212 @@
+//ESS_LOCALE SimplifiedChinese_China.MS936@Binary
+SET CREATENONMISSINGBLK OFF;
+SET CREATEBLOCKONEQ OFF;
+SET AGGMISSG ON;
+SET LOCKBLOCK HIGH;
+SET UPDATECALC OFF;
+SET CACHE ALL;
+SET CACHE HIGH;
+/*共19个维度，单位汇总12个维度*/
+
+FIX("FY19",&PriYr,&CurYr,"Actual","Working","no_Product","no_Channel","no_Customer","No_Region","no_CDD02","no_CDD03","no_CDD06","Orig")/*11*/
+
+	/*40401_父母代蛋种蛋成本*/
+	FIX("no_CDD01","no_CDD04",@Relative("All_Entity",0),"PL2022")/*15*/
+	
+		/*Amount 淘汰蛋率% 先计算*/
+		FIX("Amount","no_CDD05","YearTotal")/*18*/
+			 "淘汰蛋率%" = ("产蛋量(枚)" - "合格种蛋量(枚)" ) / "产蛋量(枚)";
+		ENDFIX
+	
+		/*饲料使用量*/
+		FIX("Per_Unit","no_CDD05","YearTotal")/*18*/
+			 "饲料使用量(KG)" = "Amount"->"产蛋期饲料成本" / "Amount"->"饲料使用量(KG)" * 1000;
+		ENDFIX
+		
+		/*其他*/
+		FIX(@IDESCENDANTS("MC1102"),"no_CDD05","YearTotal")/*18*/		
+			"Per_Unit" = "Amount" / "Amount"->"合格种蛋量(枚)";
+		ENDFIX
+				
+		/*期初,本期,期末*/
+		FIX("Per_Unit",@ICHILDREN("EndBalance"),"YearTotal")/*18*/
+			"库存成本" = "Amount"->"库存成本" / "Amount"->"库存量";			
+		ENDFIX
+	ENDFIX
+	
+	/*40402_父母代蛋鸡苗成本*/
+	FIX("no_CDD01","no_CDD04",@Relative("All_Entity",0),"PL2021")/*15*/
+	
+		/*Amount 出雏率,鸡苗利用率 先计算*/
+		FIX("Amount","no_CDD05","YearTotal")/*18*/
+			 "出雏率" = "鸡苗产量(只)" / "入孵种蛋量(枚)";
+			 "鸡苗利用率" = "合格父母代鸡苗数量(只)" / "鸡苗产量(只)";
+		ENDFIX
+	
+		/*入孵种蛋量(枚)*/
+		FIX("Per_Unit","no_CDD05","YearTotal")/*18*/
+			 "入孵种蛋量(枚)" = "生产数据(父母代蛋种蛋)" / "Amount"->"入孵种蛋量(枚)";
+		ENDFIX
+		
+		/*其他*/
+		FIX(@IDESCENDANTS("MC1202"),"no_CDD05","YearTotal")/*18*/		
+			"Per_Unit" = "Amount" / "Amount"->"合格父母代鸡苗数量(套)";
+		ENDFIX
+	ENDFIX
+	
+	/*40403_商品代蛋种蛋成本*/
+	FIX("no_CDD01","no_CDD04",@Relative("All_Entity",0),"PL2032")/*15*/
+		/*Amount 淘汰蛋率% 先计算*/
+		FIX("Amount","no_CDD05","YearTotal")/*18*/
+			 "淘汰蛋率%" = ("产蛋量(枚)" - "合格种蛋量(枚)" ) / "产蛋量(枚)";
+		ENDFIX
+	
+		/*饲料使用量*/
+		FIX("Per_Unit","no_CDD05","YearTotal")/*18*/
+			 "饲料使用量(KG)" = "Amount"->"产蛋期饲料成本" / "Amount"->"饲料使用量(KG)" * 1000;
+		ENDFIX
+		
+		/*其他*/
+		FIX(@IDESCENDANTS("MC2102"),"no_CDD05","YearTotal")/*18*/		
+			"Per_Unit" = "Amount" / "Amount"->"合格种蛋量(枚)";
+		ENDFIX
+		
+		/*期初,本期,期末*/
+		FIX("Per_Unit",@ICHILDREN("EndBalance"),"YearTotal")/*18*/
+			"库存成本" = "Amount"->"库存成本" / "Amount"->"库存量";			
+		ENDFIX
+	ENDFIX
+	
+	/*40404_商品代蛋鸡苗成本*/
+	FIX("no_CDD01","no_CDD04",@Relative("All_Entity",0),"PL2031")/*15*/
+		/*Amount 出雏率,鸡苗利用率 先计算*/
+		FIX("Amount","no_CDD05","YearTotal")/*18*/
+			 "出雏率" = "鸡苗产量(只)" / "入孵种蛋量(枚)";
+			 "鸡苗利用率" = "合格商品代鸡苗数量(只)" / "鸡苗产量(只)";
+		ENDFIX
+	
+		/*入孵种蛋量(枚)*/
+		FIX("Per_Unit","no_CDD05","YearTotal")/*18*/
+			 "入孵种蛋量(枚)" = "生产数据(父母代蛋种蛋)" / "Amount"->"入孵种蛋量(枚)";
+		ENDFIX
+		
+		/*其他*/
+		FIX(@IDESCENDANTS("MC2202"),"no_CDD05","YearTotal")/*18*/		
+			"Per_Unit" = "Amount" / "Amount"->"合格商品代鸡苗数量(只)";
+		ENDFIX
+	ENDFIX
+	
+	/*40405_青年蛋鸡成本表*/
+	FIX("no_CDD01","no_CDD04",@Relative("All_Entity",0),"PL2051")/*15*/
+
+		/*均匀度%数据均不显示*/
+		FIX("Amount","Per_Unit","no_CDD05",@IDESCENDANTS("YearTotal"))/*18*/
+			 "均匀度%" = #MISSING;
+		ENDFIX		
+
+		/*Amount 成活率%,死淘率%,均匀度% 计算完汇总再算*/
+		FIX("Amount","no_CDD05","YearTotal")/*18*/
+			 "成活率%" = "出栏青年蛋鸡数量(只)" / "入栏鸡苗数量(只)";
+			 "死淘率%" = 1 - "成活率%";
+			 "只耗料(kg/只)"  =  "耗用饲料重量(总额:千克，单位:元/千克)" / "出栏青年蛋鸡数量(只)";
+			 "青年蛋鸡周只成本" = "青年蛋鸡生产成本合计" / "出栏青年蛋鸡数量(只)"  / "出栏周龄(平均)";
+		ENDFIX
+
+		/*本年累计怎么处理*/
+		FIX("Per_Unit","no_CDD05","均匀度%","出栏周龄(平均)")/*18*/
+			 "YearTotal";
+		ENDFIX
+
+		/*出栏周龄(平均)*/
+		FIX("Amount","no_CDD05","YearTotal")/*18*/
+			 "出栏周龄(平均)" = "Per_Unit"->"出栏周龄(平均)" / "出栏青年蛋鸡数量(只)";
+		ENDFIX
+				
+		/*鸡苗(元/只),耗用饲料重量(总额:千克，单位:元/千克)*/
+		FIX("Per_Unit","no_CDD05","YearTotal")/*18*/		
+			"耗用饲料重量(总额:千克，单位:元/千克)" = "Amount"->"耗用饲料(元)" / "Amount"->"耗用饲料重量(总额:千克，单位:元/千克)" * 1000;
+			"鸡苗(元/只)" = "Amount"->"鸡苗成本(元)" / "Amount"->"入栏鸡苗数量(只)";
+		ENDFIX
+		
+		/*其他*/
+		FIX(@IDESCENDANTS("MC3102"),"no_CDD05","YearTotal")/*18*/		
+			"Per_Unit" = "Amount" / "Amount"->"出栏青年蛋鸡数量(只)";
+		ENDFIX
+	ENDFIX	
+	
+	/*40406_蛋鸡分批成本表*/
+	FIX("no_CDD01","no_CDD04",@Relative("All_Entity",0),"PL204101")/*15*/
+		/*Amount 淘汰蛋率%,成活率%,产蛋率%,标准产蛋率%,产蛋达标率% 计算完汇总再算*/
+		FIX("Amount","no_CDD05","YearTotal")/*18*/
+			 "淘汰蛋率%" = ("产蛋量(KG)" - "合格商品蛋量(KG)") / "产蛋量(KG)";
+			 "成活率%" ;
+			 "产蛋率%" = "产蛋量(枚)" / "日积存栏";
+			 "标准产蛋率%" = "标准产蛋量(枚)" / "日积存栏";
+			 "产蛋达标率%" = "产蛋率%" / "标准产蛋率%";
+		ENDFIX
+	
+		/*产蛋量(KG),合格商品蛋量(KG),饲料使用量(KG)*/
+		FIX("Per_Unit","no_CDD05","YearTotal")/*18*/
+			 "产蛋量(KG)" = "Amount"->"产蛋量(KG)" / "Amount"->"标准产蛋量(KG)";
+			 "合格商品蛋量(KG)" = "Amount"->"合格商品蛋量(KG)" / "Amount"->"标准合格商品蛋量(KG)";
+			 "饲料使用量(KG)" = "Amount"->"饲料使用量(KG)" * "Amount"->"产蛋量(KG)";
+		ENDFIX
+						
+		/*其他*/
+		FIX(@REMOVE(@IDESCENDANTS("MC4202"),@LIST("淘汰蛋损失","淘汰蛋收入","实际自产蛋合格成本(分批)")),"饲料使用量(KG)","no_CDD05","YearTotal")/*18*/		
+			"Per_Unit" = "Amount" / "Amount"->"产蛋量(KG)";
+		ENDFIX
+		
+		/*淘汰蛋损失,淘汰蛋收入,实际自产蛋合格成本(分批)*/
+		FIX("淘汰蛋损失","淘汰蛋收入","实际自产蛋合格成本(分批)","no_CDD05","YearTotal")/*18*/		
+			"Per_Unit" = "Amount" / "Amount"->"合格商品蛋量(KG)";
+		ENDFIX
+	ENDFIX	
+	
+	/*40407_商品蛋成本表*/
+	FIX("no_CDD01","no_CDD04",@Relative("All_Entity",0),"PL204102")/*15*/
+		/*产蛋量(枚),产蛋量(kg)*/
+		FIX("Per_Unit","no_CDD05","YearTotal")/*18*/
+			 "产蛋量(KG)" = "Amount"->"产蛋量(KG)" / "Amount"->"标准产蛋量(KG)";
+			 "产蛋量(枚)" = "Amount"->"产蛋量(枚)" / "Amount"->"标准产蛋量(枚)";
+		ENDFIX
+						
+		/*其他*/
+		FIX(@IDESCENDANTS("MC4102"),"饲料使用量(KG)","标准饲料使用量(KG)","no_CDD05","YearTotal")/*18*/		
+			"Per_Unit" = "Amount" / "Amount"->"产蛋量(KG)";
+		ENDFIX
+	ENDFIX	
+	
+	/*40408_商品蛋分级成本*/
+	FIX("no_CDD01","no_CDD04",@Relative("All_Entity",0),"PL204100")/*15*/		
+		/*其他*/
+		FIX(@IDESCENDANTS("MC5102"),"no_CDD05","YearTotal")/*18*/		
+			"Per_Unit" = "Amount" / "Amount"->"原料蛋量/采购量(KG)";
+		ENDFIX
+	ENDFIX	
+	
+	/*40410_液蛋成本*/
+	FIX("no_CDD01","no_CDD04",@Relative("All_Entity",0),"PL2061")/*15*/		
+		/*Amount 出品率 先计算*/
+		FIX("Amount","no_CDD05","YearTotal")/*18*/
+			 "出品率" = "产量(KG)" / "原料蛋量/采购量(KG)";
+		ENDFIX
+		/*其他*/
+		FIX(@IDESCENDANTS("MC6102"),"no_CDD05","YearTotal")/*18*/		
+			"Per_Unit" = "Amount" / "Amount"->"产量(KG)";
+		ENDFIX
+	ENDFIX	
+	
+	/*40411_深加工成本*/
+	FIX("no_CDD01","no_CDD04",@Relative("All_Entity",0),"PL7711","PL7712")/*15*/		
+		/*Amount 出品率 先计算*/
+		FIX("Amount","no_CDD05","YearTotal")/*18*/
+			 "出品率" = "产量(KG)" / "原料蛋量/采购量(KG)";
+		ENDFIX
+		/*其他*/
+		FIX(@IDESCENDANTS("MC7102"),"no_CDD05","YearTotal")/*18*/		
+			"Per_Unit" = "Amount" / "Amount"->"产量(KG)";
+		ENDFIX
+	ENDFIX	
+	
+ENDFIX

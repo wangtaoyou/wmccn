@@ -1,0 +1,38 @@
+//ESS_LOCALE SimplifiedChinese_China.MS936@Binary
+SET DATAEXPORTOPTIONS
+  {
+   /* DataExportLevel ALL | LEVEL0 | INPUT; */
+   DataExportLevel ALL;
+   /* DataExportDynamicCalc ON | OFF;       */
+   DataExportDynamicCalc ON;
+   /* DataExportNonExistingBlocks ON | OFF; */
+   DataExportNonExistingBlocks OFF;
+   /* DataExportDecimal n;                  */
+   /* DataExportPrecision n;                */
+  DataExportPrecision 10;
+   /* DataExportColFormat ON | OFF;         */
+   DataExportColFormat ON;
+   DataExportColHeader "Value";
+   /* DataExportColHeader "Scenario"; */ /* 主要作用是用来规范数据列上的成员,数据列上的成员越少,导出记录越多,导出数据的速度也就越慢 */
+   /* DataExportDimHeader ON | OFF;         */
+   DataExportDimHeader OFF;
+   /* DataExportRelationalFile ON | OFF;    */
+   DataExportRelationalFile ON;
+   /* DataExportOverwriteFile ON | OFF;     */
+   DataExportOverwriteFile ON;
+   /* DataExportDryRun ON | OFF;            */
+  DataExportDryRun OFF;
+  };
+  
+	/*实际数据匹配标准数据导出*/
+	FIX("FY19","FY20","FY21",&CurYr,"Orig","Working","no_Product","no_CDD01","no_CDD02","no_CDD03","no_CDD04","no_CDD05","no_CDD06")/*10*/
+		FIX("商品代蛋鸡",@RELATIVE("YearTotal",0),@WITHATTR("entity_Farm", "IN", "2041"),@RELATIVE("UDWG01",0),@RELATIVE("All_Breed",0),@RELATIVE("All_Flock",0),"Budget")/*17*/
+			FIX("总额","合格蛋产蛋数量(枚)","合格蛋产蛋重量(KG)","存栏量(只)","转入数量(只)","死亡数量(只)","蛋鸡-年规模产能(KG)","设计年饲养规模(只)")/*19*/
+				 DATAEXPORT "File" "," "/app/Export_Data/APP0101_Data_DP/Export_APP0101_DP01.txt" "NULL";
+			ENDFIX
+			FIX("单位","产能利用率(%)","合格产蛋达标率(%)","死淘率(%)","料蛋比","饲料耗用成本-按平谷蛋鸡饲料价格计算","身价摊销","鸡场总费用","鲜蛋生产成本","单只产蛋枚数(枚/只)","单枚蛋重(KG/枚)","饲料价格(元/KG)","药品疫苗","死淘鸡成本")/*19*/
+				 DATAEXPORT "File" "," "/app/Export_Data/APP0101_Data_DP/Export_APP0101_DP02.txt" "NULL";
+			ENDFIX
+		ENDFIX
+	ENDFIX
+	
