@@ -18,9 +18,8 @@ FIX (&CurYr, "Actual","Working","no_CDD01","no_CDD02","no_CDD03","no_CDD04","no_
 			FIX(&EndDay)/*(17)*/	
 				FIX("Amount")/*(18)*/	
 					"Orig" (
-						IF(	"销售收入"->"Before_Allc"->"All_Channel"->"All_Product"->"All_Region"->"All_Customer"->@PARENT("Period") == #MISSING OR "销售收入"->"Before_Allc"->"All_Channel"->"All_Product"->"All_Region"->"All_Customer"->@PARENT("Period") == 0)
-							
-							"Orig"= "管理费用-跌价准备"->"Before_Allc"->"no_Channel"->"no_Customer"->"no_Region"->@PARENT("Period");
+						IF(	"销售收入"->"Before_Allc"->"All_Channel"->"All_Region"->"All_Customer"->@PARENT("Period") == #MISSING OR "销售收入"->"Before_Allc"->"All_Channel"->"All_Region"->"All_Customer"->@PARENT("Period") == 0)
+								"Orig"= "管理费用-跌价准备"->"Before_Allc"->"no_Channel"->"no_Customer"->"no_Region"->@PARENT("Period");
 						ENDIF
 					)
 				ENDFIX

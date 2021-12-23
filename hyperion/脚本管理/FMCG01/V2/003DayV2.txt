@@ -11,7 +11,7 @@ SET CREATENONMISSINGBLK OFF;
 稀疏维：Period/Entity/Productline/Product/Channel/Customer/Region/Version/Scenario/Years
 */
 
-/*这个脚本是日预测用的*/
+/*这个脚本是日预测用的 &Curday 有时&CurMon*/
 
 
 FIX (&CurYr,"Actual","Working","no_CDD01","no_CDD02","no_CDD03","no_CDD04","no_CDD05","no_CDD06") /*(9)*/
@@ -40,6 +40,12 @@ FIX (&CurYr,"Actual","Working","no_CDD01","no_CDD02","no_CDD03","no_CDD04","no_C
 					AGG("Period");
 				ENDFIX
 				FIX(&CurDay,&CurMon)/*(18)*/
+					DATACOPY "Before_Allc" TO "Orig";
+				ENDFIX	
+			ENDFIX	
+			
+			FIX("no_Channel","no_Customer","no_Region","肉类成本","米面成本","蔬菜成本","其他原料成本","辅料成本","包装成本","原料成本","制造费用","直接人工","直接水费","直接电费","直接维修","直接物料消耗","直接蒸汽","直接天然气","直接折旧","直接其他","间接人工","间接水费","间接电费","间接维修","间接物料消耗","间接蒸汽","间接天然气","间接折旧","间接其他")
+				FIX(&CurMon)/*(18)*/
 					DATACOPY "Before_Allc" TO "Orig";
 				ENDFIX	
 			ENDFIX	
@@ -190,8 +196,39 @@ FIX(@RELATIVE("Product",0),@RELATIVE("ProductLine",0),@RELATIVE("Customer",0),@R
 				"Per_Unit"="Amount"/"销量"->"Amount";
 			ENDFIX	
 		ENDFIX
+	ENDFIX
+	
+	/*管财费用当天没有销售收入的情况下将费用分摊到当天不区分上*/
+	FIX("no_Product","no_ProductLine","no_Customer","no_Region","no_Channel",@RELATIVE("Entity",0))/*(15)*/
+		FIX("税金及附加","管理费用","管理费用-折旧费用","管理费用-薪资及附加","管理费用-工会经费","财务费用","财务费用-利息支出","财务费用-利息收入","财务费用-银行手续费","财务费用-财务服务费","其他业务利润","营业外收支","技术服务费","所得税","财务费用-汇兑损益","财务费用-锁定利率","锁汇资金占用")/*(16)*/
+			FIX(&CurDay)/*(17)*/	
+				FIX("Amount")/*(18)*/	
+				SET CREATENONMISSINGBLK ON;					
+					"Orig" (
+						IF(@ISMBR("FY21") OR @ISMBR("FY22") OR @ISMBR("FY23"))
+							IF(@ISMBR("2月29日"))
+								"Orig" = #MISSING;
+							ELSE
+								IF(	"销售收入"->"Before_Allc"->"All_ProductLine"->"All_Channel"->"All_Product"->"All_Region"->"All_Customer" == #MISSING OR "销售收入"->"Before_Allc"->"All_ProductLine"->"All_Channel"->"All_Product"->"All_Region"->"All_Customer" == 0)
+										
+									"Orig"= "Before_Allc"->@PARENT("Period")/"Days"->"预算"->"no_Entity"->@PARENT("Period");
+										
+								ENDIF	
+							ENDIF
+						ENDIF
+					)
+				SET CREATENONMISSINGBLK OFF;
+				ENDFIX
+			ENDFIX
 
-ENDFIX
+			FIX("Amount","Orig") /*(18)*/
+					@IDESC("YearTotal");
+			ENDFIX	
+		ENDFIX
+	ENDFIX
+	
+
+
 
 
 /*各维度大聚合,单位=总额/销量*/
@@ -207,7 +244,7 @@ ENDFIX
 	ENDFIX
 	FIX(@IDESC("Yeartotal"),"肉类成本","米面成本","蔬菜成本","其他原料成本","辅料成本","包装成本","原料成本","制造费用","直接人工","直接水费","直接电费","直接维修","直接物料消耗","直接蒸汽","直接天然气","直接折旧","直接其他","间接人工","间接水费","间接电费","间接维修","间接物料消耗","间接蒸汽","间接天然气","间接折旧","间接其他")/*(11)*/
 		FIX("Per_Unit",@IDESC("Total_Product"),@IDESC("Total_ProductLine"),@RELATIVE("Entity",0),@IDESC("Total_Channel"),@IDESC("Total_Region"),@IDESC("Total_Customer"))/*(18)*/
-				"Orig"="Amount"->"Orig"/"产量"->"no_Channel"->"no_Customer"->"no_Region"->"Amount"->"Orig";
+				"Orig"="Amount"/"产量"->"no_Channel"->"no_Customer"->"no_Region"->"Amount";
 		ENDFIX
 	ENDFIX		
 

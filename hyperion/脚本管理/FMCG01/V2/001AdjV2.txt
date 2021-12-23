@@ -10,6 +10,9 @@ SET CREATENONMISSINGBLK OFF;
 密集维：Account/Value/View
 稀疏维：Period/Entity/Productline/Product/Channel/Customer/Region/Version/Scenario/Years
 */
+
+/*数据初始化 月实际 @RELATIVE("YearTotal",0)及@CHILD("YearTotal"))*/
+
 FIX (&CurYr, "Actual","Working","no_CDD01","no_CDD02","no_CDD03","no_CDD04","no_CDD05","no_CDD06") /*(9)*/
 
 	FIX("Amount" ,@RELATIVE("Entity",0))/*(11)*/	
@@ -126,7 +129,7 @@ FIX (&CurYr, "Actual","Working","no_CDD01","no_CDD02","no_CDD03","no_CDD04","no_
 		FIX("税金及附加","管理费用","管理费用-折旧费用","管理费用-薪资及附加","管理费用-工会经费","财务费用","财务费用-利息支出","财务费用-利息收入","财务费用-银行手续费","财务费用-财务服务费","其他业务利润","营业外收支","技术服务费","所得税","财务费用-汇兑损益","财务费用-锁定利率","锁汇资金占用")	/*(16)*/	
 			FIX(@RELATIVE("YearTotal",0))/*(17)*/	
 				FIX("Amount")/*(18)*/	
-					"Orig"="Before_Allc"->@PARENT("Period")->"no_Product"->"no_ProductLine"->"no_Channel"->"no_Region"->"no_Customer"/"Days"->"预算"->"no_Product"->"no_ProductLine"->"no_Channel"->"no_Region"->"no_Customer"->"no_Entity"->@PARENT("Period")*"销售收入"->"Before_Allc"/"销售收入"->"All_Customer"->"All_ProductLine"->"All_Region"->"All_Channel"->"All_Product"->"Before_Allc"->@PARENT("Period");
+					"Orig"="Before_Allc"->@PARENT("Period")->"no_Product"->"no_ProductLine"->"no_Channel"->"no_Region"->"no_Customer"/"Days"->"预算"->"no_Product"->"no_ProductLine"->"no_Channel"->"no_Region"->"no_Customer"->"no_Entity"->@PARENT("Period")*"销售收入"->"Before_Allc"/"销售收入"->"All_Customer"->"All_ProductLine"->"All_Region"->"All_Channel"->"All_Product"->"Before_Allc";
 				ENDFIX
 			ENDFIX
 			
@@ -216,7 +219,7 @@ FIX (&CurYr, "Actual","Working","no_CDD01","no_CDD02","no_CDD03","no_CDD04","no_
 		FIX("管理费用-跌价准备")/*(16)*/	
 			FIX(@RELATIVE("YearTotal",0))/*(17)*/	
 				FIX("Amount")/*(18)*/	
-					"Orig" ="销售收入"->"Before_Allc"/"销售收入"->"Before_Allc"->"All_Channel"->"All_Product"->"All_Region"->"All_Customer"->@PARENT("Period")*"Before_Allc"->"no_Channel"->"no_Customer"->"no_Region"->@PARENT("Period");
+					"Orig" ="销售收入"->"Before_Allc"/"销售收入"->"Before_Allc"->"All_Channel"->"All_Region"->"All_Customer"->@PARENT("Period")*"Before_Allc"->"no_Channel"->"no_Customer"->"no_Region"->@PARENT("Period");
 				ENDFIX
 			ENDFIX
 			
@@ -225,7 +228,35 @@ FIX (&CurYr, "Actual","Working","no_CDD01","no_CDD02","no_CDD03","no_CDD04","no_
 			ENDFIX
 		ENDFIX
 	ENDFIX
-		
+	
+	/*管财费用当天没有销售收入的情况下将费用分摊到当天不区分上*/
+	FIX("no_Product","no_ProductLine","no_Customer","no_Region","no_Channel",@RELATIVE("Entity",0))/*(15)*/
+		FIX("税金及附加","管理费用","管理费用-折旧费用","管理费用-薪资及附加","管理费用-工会经费","财务费用","财务费用-利息支出","财务费用-利息收入","财务费用-银行手续费","财务费用-财务服务费","其他业务利润","营业外收支","技术服务费","所得税","财务费用-汇兑损益","财务费用-锁定利率","锁汇资金占用")/*(16)*/
+			FIX(@RELATIVE("YearTotal",0))/*(17)*/	
+				FIX("Amount")/*(18)*/	
+				SET CREATENONMISSINGBLK ON;					
+					"Orig" (
+						IF(@ISMBR("FY21") OR @ISMBR("FY22") OR @ISMBR("FY23"))
+							IF(@ISMBR("2月29日"))
+								"Orig" = #MISSING;
+							ELSE
+								IF(	"销售收入"->"Before_Allc"->"All_ProductLine"->"All_Channel"->"All_Product"->"All_Region"->"All_Customer" == #MISSING OR "销售收入"->"Before_Allc"->"All_ProductLine"->"All_Channel"->"All_Product"->"All_Region"->"All_Customer" == 0)
+										
+									"Orig"= "Before_Allc"->@PARENT("Period")/"Days"->"预算"->"no_Entity"->@PARENT("Period");
+										
+								ENDIF	
+							ENDIF
+						ENDIF
+					)
+				SET CREATENONMISSINGBLK OFF;
+				ENDFIX
+			ENDFIX
+
+			FIX("Amount","Orig") /*(18)*/
+					@IDESC("YearTotal");
+			ENDFIX	
+		ENDFIX
+	ENDFIX
 
 /*各维度大聚合,单位=总额/销量*/
 	FIX(@IDESC("Yeartotal"),@RELATIVE("AF_P&L",0),@RELATIVE("Quantity",0),"其他业务利润","营业外收支","技术服务费","销售费用-运输费用","销售费用-样品费用","销售费用-品牌使用费","管理费用-折旧费用","管理费用-薪资及附加","管理费用-工会经费","财务费用-利息支出","财务费用-利息收入","财务费用-银行手续费","财务费用-财务服务费","产销成本差异","边际贡献","税金及附加","肉类成本","米面成本","蔬菜成本","其他原料成本","辅料成本","包装成本","原料成本","制造费用","直接人工","直接水费","直接电费","直接维修","直接物料消耗","直接蒸汽","直接天然气","直接折旧","直接其他","间接人工","间接水费","间接电费","间接维修","间接物料消耗","间接蒸汽","间接天然气","间接折旧","间接其他","财务费用-汇兑损益","财务费用-锁定利率","所得税","锁汇资金占用","管理费用-跌价准备")/*(11)*/			
